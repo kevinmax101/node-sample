@@ -1,3 +1,7 @@
+require('dotenv-defaults').config()
+
+const { DBHOST, DBUSER, DBPASSWORD, DBNAME } = process.env
+
 var express = require('express');
 var app = express();
 var mysql = require('mysql');
@@ -12,10 +16,10 @@ app.use(bodyParser.json());
 app.use('/static', express.static('public'))
 
 var con = mysql.createConnection({
-	host: "mysampledb.c7vnnx79s7c3.us-east-1.rds.amazonaws.com",
-	user: "jigs",
-	password: "jigsjigs",
-	database: "jigsdb"
+	host: DBHOST,
+	user: DBUSER,
+	password: DBPASSWORD,
+	database: DBNAME
 });
 
 con.connect(function(err) {
@@ -23,19 +27,11 @@ con.connect(function(err) {
 	console.log("Connected!");
 });
 
-app.get('/', function (req, res) {
-	console.log("Got a GET request for the homepage");
-	// var sql = "INSERT INTO user (firstname, middlename, lastname) VALUES ('Jigs 1', 'P', 'Gasataya 2')";
-	// con.query(sql, function (err, result) {
-	// 	if (err) throw err;
-	// 	console.log("1 record inserted");
-	// });
-
-	res.sendFile(path.join(__dirname + '/index.html'));
+app.get('/', function (req, res) {	
+        res.sendFile(path.join(__dirname + '/index.html'));
 })
 
 app.post('/', function (req, res) {
-	console.log(req.body)
 	const newUser = req.body
 	console.log("Got a POST request for the homepage");
 	var sql = `INSERT INTO user (firstname, middlename, lastname) VALUES ('${newUser.firstname}', '${newUser.middlename}', '${newUser.lastname}')`;
@@ -62,7 +58,6 @@ app.get('/list_user', function (req, res) {
 		console.log(result);
 		res.json(result);
 	});
-	// res.send('Page Listing');
 })
 
 app.get('/get_user', function (req, res) {
@@ -76,7 +71,6 @@ app.get('/get_user', function (req, res) {
 
 app.put('/update_user', function (req, res) {
 	const updateUser = req.body
-	console.log("Got a POST request for the homepage");
 	var sql = `Update user set firstname= '${updateUser.firstname}', middlename='${updateUser.middlename}', lastname='${updateUser.lastname}' where id=${updateUser.id}`;
 	con.query(sql, function (err, result) {
 		if (err) throw err;
